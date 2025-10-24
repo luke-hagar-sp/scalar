@@ -506,7 +506,7 @@ jobs:
           report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
           report-file: packages/components/playwright-results.json
 
-  test-cdn-snapshots:
+  test-references-snapshots:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'changeset-release/main' || github.head_ref == 'main'
     needs: [build]
     runs-on: blacksmith-8vcpu-ubuntu-2204
@@ -520,39 +520,39 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Generate new DEPLOY_ID
-        run: echo "DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Generate new CDN_DEPLOY_ID
+        run: echo "CDN_DEPLOY_ID=$(npx uuid)" >> "$GITHUB_ENV" && echo $CDN_DEPLOY_ID
       - name: Build
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages: '@scalar/api-reference...'
         env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+          CDN_DEPLOY_ID: ${{ env.CDN_DEPLOY_ID }}
       - name: Install playwright
         uses: ./.github/actions/install-playwright
         with:
           with-deps: 'false'
       - name: Run snapshot tests (@scalar/api-reference)
-        run: pnpm --filter api-reference test:e2e:snapshots:ci
+        run: pnpm --filter api-reference test:e2e:cdn:ci
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Deploy Playwright Report to Netlify
         run: |
-          pnpx netlify deploy --dir "./packages/api-reference/playwright-report" \
-            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+          pnpx netlify deploy --dir "./packages/api-reference/playwright-report-cdn" \
+            --message "Deployed from GitHub (${{ env.CDN_DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --filter @scalar/components \
-            --alias=${{env.DEPLOY_ID}}
+            --alias=${{env.CDN_DEPLOY_ID}}
         # Only when the PR is from the same repository
       - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
         name: Add Netlify Playwright Report URL to the PR
         uses: daun/playwright-report-summary@93883773b4f4f0951d8bcdb780c6443ca51eaf7b # v3
         with:
           comment-title: 'Scalar CDN Snapshot Diff Results'
-          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
-          report-file: packages/api-reference/playwright-results.json
+          report-url: https://${{env.CDN_DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/api-reference/playwright-results-cdn.json
           report-tag: test-cdn-snapshots
           custom-info: These tests are **non-blocking** and will not prevent merging of your PR.
           footer: |

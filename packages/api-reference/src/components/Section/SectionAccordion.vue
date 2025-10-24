@@ -29,6 +29,7 @@ const handleScroll = () => {
 </script>
 <template>
   <IntersectionObserver
+    is="section"
     :id="id"
     class="section-wrapper"
     @intersecting="handleScroll">

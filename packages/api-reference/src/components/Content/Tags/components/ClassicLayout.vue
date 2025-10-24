@@ -15,7 +15,9 @@ defineProps<{
 </script>
 
 <template>
-  <SectionContainerAccordion class="tag-section">
+  <SectionContainerAccordion
+    :aria-label="`Tag: ${tag.title}`"
+    class="tag-section">
     <template #title>
       <SectionHeader class="tag-name">
         <Anchor :id="tag.id">

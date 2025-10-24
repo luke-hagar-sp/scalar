@@ -3,7 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIconCaretRight } from '@scalar/icons'
 </script>
 <template>
-  <div class="section-accordion-wrapper">
+  <section class="section-accordion-wrapper">
     <Disclosure
       v-slot="{ open }"
       as="div"
@@ -21,7 +21,7 @@ import { ScalarIconCaretRight } from '@scalar/icons'
         <slot />
       </DisclosurePanel>
     </Disclosure>
-  </div>
+  </section>
 </template>
 <style scoped>
 .section-accordion-wrapper {
